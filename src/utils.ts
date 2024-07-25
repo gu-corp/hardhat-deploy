@@ -338,9 +338,7 @@ function transformNamedAccounts(
               addressesToProtocol[address.toLowerCase()] =
                 protocolSplit[0].toLowerCase();
               // knownAccountsDict[address.toLowerCase()] = true; // TODO ? this would prevent auto impersonation in fork/test
-            } else if (
-              protocolSplit[0].toLowerCase() === 'trezor'
-            ) {
+            } else if (protocolSplit[0].toLowerCase() === 'trezor') {
               address = protocolSplit[1];
               addressesToProtocol[address.toLowerCase()] =
                 protocolSplit[0].toLowerCase();
@@ -361,6 +359,14 @@ function transformNamedAccounts(
               address = new Wallet(protocolSplit[1]).address;
               addressesToProtocol[address.toLowerCase()] =
                 'privatekey://' + protocolSplit[1];
+            } else if (protocolSplit[0].toLowerCase() === 'awskms') {
+              // Format: awskms://{address}:{asw_kms_key_id}:{aws_kms_region}:{aws_kms_access_key_id}:{aws_kms_secret_access_key}
+
+              const addressSplit = protocolSplit[1].split(':');
+              address = addressSplit[0];
+              addressesToProtocol[
+                address.toLowerCase()
+              ] = `awskms://${addressSplit[1]}:${addressSplit[2]}:${addressSplit[3]}:${addressSplit[4]}`;
             } else {
               throw new Error(
                 `unsupported protocol ${protocolSplit[0]}:// for named accounts`
@@ -561,11 +567,14 @@ export function getDeployPaths(network: Network): string[] {
   }
 }
 
-export function filterABI(
-  abi: ABI,
-  excludeSighashes: Set<string>,
-): any[] {
-  return abi.filter(fragment => fragment.type !== 'function' || !excludeSighashes.has(Interface.getSighash(Fragment.from(fragment) as FunctionFragment)));
+export function filterABI(abi: ABI, excludeSighashes: Set<string>): any[] {
+  return abi.filter(
+    (fragment) =>
+      fragment.type !== 'function' ||
+      !excludeSighashes.has(
+        Interface.getSighash(Fragment.from(fragment) as FunctionFragment)
+      )
+  );
 }
 
 export function mergeABIs(

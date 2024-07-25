@@ -1784,6 +1784,43 @@ Note that in this case, the contract deployment will not behave the same if depl
             ethersSigner = new Wallet(registeredProtocol.substr(13), provider);
           } else if (registeredProtocol.startsWith('gnosis')) {
             ethersSigner = new Wallet(registeredProtocol.substr(13), provider);
+          } else if (registeredProtocol.startsWith('awskms')) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            let error: any | undefined;
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-var-requires
+              const EthersV5AwsKmsSignerModule = require('@gu-corp/ethers-v5-aws-kms-signer');
+              const [keyId, region, accessKeyId, secretAccessKey] =
+                registeredProtocol.substr(9).split(':');
+
+              if (!keyId || !region || !accessKeyId || !secretAccessKey) {
+                throw new Error(
+                  `network is currently unsupported with Amazon KMS`
+                );
+              }
+
+              ethersSigner =
+                new EthersV5AwsKmsSignerModule.EthersV5AwsKmsSigner(
+                  {
+                    keyId,
+                    region,
+                    credentials: {
+                      accessKeyId,
+                      secretAccessKey,
+                    },
+                  },
+                  provider
+                );
+            } catch (e) {
+              error = e;
+            }
+
+            if (error) {
+              console.error(
+                `failed to loader hardware wallet module for trezor`
+              );
+              throw error;
+            }
           }
         }
       }

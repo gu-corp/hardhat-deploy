@@ -1,5 +1,5 @@
 {
-  "name": "@gu-corp/hardhat-deploy",
+  "name": "hardhat-deploy",
   "version": "0.12.5",
   "description": "Hardhat Plugin For Replicable Deployments And Tests",
   "repository": "github:wighawag/hardhat-deploy",

@@ -1,4 +1,4 @@
-/dist
+# /dist Ignore build file to install by git for now
 
 # Logs
 logs
